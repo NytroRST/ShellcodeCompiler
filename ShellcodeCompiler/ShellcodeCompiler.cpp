@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <windows.h>
 
 using namespace std;
 
@@ -189,8 +190,14 @@ string CharToHexString(char p_cChar)
 string GetASMHeader()
 {
 	string sContent =
+		"; Shellcode generated using Shellcode Compiler                         \r\n"
+		"; https://github.com/NytroRST/ShellcodeCompiler                    \r\n\r\n"
+		"BITS 32                                                                \r\n"
+		"SECTION .text                                                          \r\n"
+		"global main                                                            \r\n"
+		"main:                                                              \r\n\r\n"
 		"xor ecx, ecx                                                           \r\n"
-		"mov eax, fs:[ecx + 0x30]               ; EAX = PEB                     \r\n"
+		"mov eax, [fs:ecx + 0x30]               ; EAX = PEB                     \r\n"
 		"mov eax, [eax + 0xc]                   ; EAX = PEB->Ldr                \r\n"
 		"mov esi, [eax + 0x14]                  ; ESI = PEB->Ldr.InMemOrder     \r\n"
 		"lodsd                                  ; EAX = Second module           \r\n"
@@ -210,11 +217,11 @@ string GetASMHeader()
 		"inc ecx                                ; Increment the ordinal         \r\n"
 		"lodsd                                  ; Get name offset               \r\n"
 		"add eax, ebx                           ; Get function name             \r\n"
-		"cmp dword ptr[eax], 0x50746547         ; GetP                          \r\n"
+		"cmp dword [eax], 0x50746547            ; GetP                          \r\n"
 		"jnz Get_Function                                                       \r\n"
-		"cmp dword ptr[eax + 0x4], 0x41636f72   ; rocA                          \r\n"
+		"cmp dword [eax + 0x4], 0x41636f72      ; rocA                          \r\n"
 		"jnz Get_Function                                                       \r\n"
-		"cmp dword ptr[eax + 0x8], 0x65726464   ; ddre                          \r\n"
+		"cmp dword [eax + 0x8], 0x65726464      ; ddre                          \r\n"
 		"jnz Get_Function                                                       \r\n"
 		"mov esi, [edx + 0x24]                  ; ESI = Offset ordinals         \r\n"
 		"add esi, ebx                           ; ESI = Ordinals table          \r\n"
@@ -283,7 +290,6 @@ void AddDLLBase(string p_sDLLName)
 	// Check if DLL already exists
 
 	if (DLLBaseExists(p_sDLLName)) return;
-	cout << "Add dLL base: " << p_sDLLName << endl;
 
 	dll.Name = p_sDLLName;
 	dll.Offset = CurrentDLLIOffset;
@@ -334,7 +340,6 @@ void AddFunctionOffset(string p_sFunctionName)
 	// Check if DLL already exists
 
 	if (FunctionOffsetExists(p_sFunctionName)) return;
-	cout << "Add function offset: " << p_sFunctionName << endl;
 
 	func.Name = p_sFunctionName;
 	func.Offset = CurrentFunctionOffset;
@@ -385,7 +390,6 @@ void AddStringOffset(string p_sString)
 	// Check if string already exists
 
 	if (StringOffsetExists(p_sString)) return;
-	cout << "Add string offset: " << p_sString << endl;
 
 	str.Name = p_sString;
 	str.Offset = CurrentStringOffset;
@@ -419,7 +423,7 @@ string GenerateLoadLibraryCall(string p_sDLLName)
 
 	if (Len % 4 == 0)
 	{
-		sContent = "xor eax, eax                           ; EAX = 0                       \r\n";
+		sContent = "xor eax, eax                            ; EAX = 0                       \r\n";
 		sContent += "push eax                               ; NULL on the stack             \r\n";
 	}
 	else if (Len % 4 == 1)
@@ -448,7 +452,7 @@ string GenerateLoadLibraryCall(string p_sDLLName)
 		sContent += CharToHexString(p_sDLLName[Len - 3]);
 		sContent += "\r\n";
 		sContent += "push eax\r\n";
-		sContent += "sub dword ptr[esp + 3], 0x23\r\n";
+		sContent += "sub dword [esp + 3], 0x23\r\n";
 	}
 	else cout << "Imaginary number?" << endl;
 
@@ -468,7 +472,7 @@ string GenerateLoadLibraryCall(string p_sDLLName)
 	// LoadLibrary function call
 
 	sContent += "push esp                               ; String on the stack           \r\n";
-	sContent += "call dword ptr[esp + ";
+	sContent += "call dword [esp + ";
 	sContent += to_string(((Times + 2) * 4) + NrBasesToStack * 4);
 	sContent += "]\r\n";
 	sContent += "add esp, ";
@@ -499,7 +503,7 @@ string GenerateGetProcAddressCall(string p_sDLLName, string p_sFunctionName)
 
 	if (Len % 4 == 0)
 	{
-		sContent = "xor eax, eax                           ; EAX = 0                       \r\n";
+		sContent = "xor eax, eax                            ; EAX = 0                       \r\n";
 		sContent += "push eax                               ; NULL on the stack             \r\n";
 	}
 	else if (Len % 4 == 1)
@@ -528,7 +532,7 @@ string GenerateGetProcAddressCall(string p_sDLLName, string p_sFunctionName)
 		sContent += CharToHexString(p_sFunctionName[Len - 3]);
 		sContent += "\r\n";
 		sContent += "push eax\r\n";
-		sContent += "sub dword ptr[esp + 3], 0x23\r\n";
+		sContent += "sub dword [esp + 3], 0x23\r\n";
 	}
 	else cout << "Imaginary number?" << endl;
 
@@ -548,13 +552,13 @@ string GenerateGetProcAddressCall(string p_sDLLName, string p_sFunctionName)
 	// LoadLibrary function call
 
 	sContent += "push esp                               ; String on the stack            \r\n";
-	sContent += "push dword ptr[esp + ";
+	sContent += "push dword [esp + ";
 	sContent += to_string((NrFunctionsToStack * 4) + ((NrBasesToStack + 3 - GetDLLBase(p_sDLLName)) * 4) + ((Times + 2) * 4));
 	sContent += "] \r\n";
 
 	// Call GetProcAddress
 
-	sContent += "call dword ptr[esp + ";
+	sContent += "call dword [esp + ";
 	sContent += to_string(((NrFunctionsToStack + 1) * 4) + ((NrBasesToStack + 1) * 4) + ((Times + 2) * 4));
 	sContent += "]\r\n";
 	sContent += "add esp, ";
@@ -585,8 +589,8 @@ string GeneratePutStringToStack(string p_sString)
 
 	if (Len % 4 == 0)
 	{
-		sContent = "xor eax, eax                           ; EAX = 0                       \r\n";
-		sContent += "push eax                               ; NULL on the stack             \r\n";
+		sContent  = "xor eax, eax                            ; EAX = 0                       \r\n";
+		sContent += "push eax                                ; NULL on the stack             \r\n";
 	}
 	else if (Len % 4 == 1)
 	{
@@ -614,7 +618,7 @@ string GeneratePutStringToStack(string p_sString)
 		sContent += CharToHexString(p_sString[Len - 3]);
 		sContent += "\r\n";
 		sContent += "push eax\r\n";
-		sContent += "sub dword ptr[esp + 3], 0x23\r\n";
+		sContent += "sub dword [esp + 3], 0x23\r\n";
 	}
 	else cout << "Imaginary number?" << endl;
 
@@ -636,7 +640,6 @@ string GeneratePutStringToStack(string p_sString)
 	sContent += "push esp\r\n\r\n";
 	CurrentStringOffset = CurrentStringOffset + Times + 2;
 	AddStringOffset(p_sString);
-	cout << "Added string: " << p_sString << ", Offset: " << CurrentStringOffset << endl;
 
 	return sContent;
 }
@@ -649,8 +652,6 @@ string GenerateFunctionCall(FunctionCall p_oFunctionCall)
 	size_t NrParam = p_oFunctionCall.Parameters.size();
 	size_t CurrentParamNr = 1;
 
-	cout << "Generating a function call for " << p_oFunctionCall.Name << endl << endl;
-
 	// First, put all string parameters on the stack
 
 	for (size_t i = 0; i < p_oFunctionCall.Parameters.size(); i++)
@@ -662,15 +663,25 @@ string GenerateFunctionCall(FunctionCall p_oFunctionCall)
 	{
 		if (p_oFunctionCall.Parameters[i].Type == PARAMETER_TYPE_STRING)
 		{
-			sContent += "push dword ptr[ESP + ";
+			sContent += "push dword [ESP + ";
 			sContent += to_string(((CurrentParamNr - 1) * 4) + ((CurrentStringOffset - GetStringOffset(p_oFunctionCall.Parameters[i].StringValue)) * 4));
 			sContent += "]\r\n";
 		}
 		else if (p_oFunctionCall.Parameters[i].Type == PARAMETER_TYPE_INT)
 		{
-			sContent += "push ";
-			sContent += to_string(p_oFunctionCall.Parameters[i].IntValue);
-			sContent += "\r\n";
+			// If int parameter is 0, avoid NULL
+
+			if (p_oFunctionCall.Parameters[i].IntValue == 0)
+			{
+				sContent += "xor eax, eax\r\n";
+				sContent += "push eax\r\n";
+			}
+			else
+			{
+				sContent += "push ";
+				sContent += to_string(p_oFunctionCall.Parameters[i].IntValue);
+				sContent += "\r\n";
+			}
 		}
 		else cout << "Error: Undefined parameter type!" << endl;
 
@@ -680,15 +691,18 @@ string GenerateFunctionCall(FunctionCall p_oFunctionCall)
 
 	// Call function
 
-	sContent += "call dword ptr[ESP + ";
+	sContent += "call dword [ESP + ";
 	sContent += to_string(((NrParam - 1) * 4) + (CurrentStringOffset * 4) + ((CurrentFunctionOffset - GetFunctionOffset(p_oFunctionCall.Name)) * 4));
 	sContent += "]\r\n";
 
 	// Clean string parameters
 
-	sContent += "add ESP, ";
-	sContent += to_string(CurrentStringOffset * 4);
-	sContent += "\r\n\r\n";
+	if (CurrentStringOffset > 0)
+	{
+		sContent += "add ESP, ";
+		sContent += to_string(CurrentStringOffset * 4);
+		sContent += "\r\n";
+	}
 
 	// Clean global strings data
 
@@ -721,7 +735,6 @@ State CF_GotAllArgs;
 
 void ProcessStateData_FunctionName(string p_sString)
 {
-	cout << "We have a call to save a function name: " << p_sString << endl;
 	AddFunctionName(p_sString);
 }
 
@@ -729,7 +742,6 @@ void ProcessStateData_FunctionName(string p_sString)
 
 void ProcessStateData_FunctionDLLName(string p_sString)
 {
-	cout << "We have a call to save a function DLL name: " << p_sString << endl;
 	AddFunctionDLLName(p_sString);
 }
 
@@ -737,7 +749,6 @@ void ProcessStateData_FunctionDLLName(string p_sString)
 
 void ProcessStateData_FunctionCallStringArg(string p_sString)
 {
-	cout << "We have a call to push a string parameter: " << p_sString << endl;
 	AddFunctionCallStringParameter(p_sString);
 }
 
@@ -745,7 +756,6 @@ void ProcessStateData_FunctionCallStringArg(string p_sString)
 
 void ProcessStateData_FunctionCallIntArg(string p_sString)
 {
-	cout << "We have a call to push an int parameter: " << p_sString << endl;
 	AddFunctionCallIntParameter(p_sString);
 }
 
@@ -755,6 +765,52 @@ bool IsString(char p_cCharacter)
 {
 	return (p_cCharacter >= 32 && p_cCharacter <= 126 &&
 		p_cCharacter != '"' && p_cCharacter != ')' && p_cCharacter != '(' && p_cCharacter != ',');
+}
+
+// Get TEMP folder
+
+string GetTemp()
+{
+	char buffer[1024];
+	string sContent = "";
+
+	DWORD r = GetTempPath(1024, buffer);
+
+	if (r == 0) return "";
+	sContent = buffer;
+	
+	return sContent;
+}
+
+// Get current working directory
+
+string GetCurrentDir()
+{
+	char buffer[1024];
+	string sContent = "";
+
+	DWORD r = GetCurrentDirectory(1024, buffer);
+
+	if (r == 0) return "";
+	sContent = buffer;
+
+	return sContent;
+}
+
+// Check if a file exists
+
+bool FileExists(string p_sPath)
+{
+	DWORD dwAttrib = GetFileAttributes(p_sPath.c_str());
+
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES);
+}
+
+// Delete a file
+
+bool DeleteSourceFile(string p_sFile)
+{
+	return DeleteFile(p_sFile.c_str());
 }
 
 // Function used to read a file
@@ -777,6 +833,7 @@ string ReadSourceFile(string p_sFilename)
 
 	rewind(f);
 	fread(cdata, sizeof(char), size, f);
+	fclose(f);
 
 	// Return data
 
@@ -784,6 +841,94 @@ string ReadSourceFile(string p_sFilename)
 	delete[] cdata;
 
 	return contents;
+}
+
+// Get the size of a file
+
+size_t GetSize(string p_sFilename)
+{
+	size_t size;
+	FILE* f = fopen(p_sFilename.c_str(), "rb");
+
+	// Get file size
+
+	fseek(f, 0, SEEK_END);
+	size = ftell(f);
+	rewind(f);
+	fclose(f);
+
+	return size;
+}
+
+// Read binary file
+
+unsigned char* ReadBinaryFile(string p_sFilename, size_t *p_rSize)
+{
+	unsigned char *p = NULL;
+	FILE* f = NULL;
+	size_t res = 0;
+
+	if (!FileExists(p_sFilename))
+	{
+		cout << "Binary file does not exists!" << endl;
+		return NULL;
+	}
+
+	// Get size and allocate space
+
+	*p_rSize = GetSize(p_sFilename);
+	if (*p_rSize == 0) return NULL;
+		
+	f = fopen(p_sFilename.c_str(), "rb");
+
+	p = new unsigned char[*p_rSize];
+
+	// Read file
+
+	rewind(f);
+	res = fread(p, sizeof(unsigned char), *p_rSize, f);
+	fclose(f);
+
+	if (res == 0)
+	{
+		delete[] p;
+		return NULL;
+	}
+
+	return p;
+}
+
+// Test the generated shellcode
+
+void TestShellcode(string p_sFilename)
+{
+	unsigned char *p = NULL;
+	size_t size = 0;
+	
+	p = ReadBinaryFile(p_sFilename, &size);
+
+	// Check if successful read
+
+	if (size == 0 || p == NULL)
+	{
+		cout << "Error: Cannot read shellcode file!" << endl;
+		return;
+	}
+
+	// Get space for shellcode
+
+	void *sc = VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+
+	if (sc == NULL)
+	{
+		cout << "Error: Cannot allocate space for shellcode!" << endl;
+		return;
+	}
+
+	// Copy shellcode and execute it
+
+	memcpy(sc, p, size);
+	(*(int(*)()) sc)();
 }
 
 // Function used to parse data
@@ -862,7 +1007,6 @@ bool ParseFile(string p_sFileData)
 			}
 			else if (FunctionExists(sReadString))
 			{
-				cout << "We found an existing function: " << sReadString << endl;
 				AddFunctionCallName(sReadString);
 
 				CurrentState = CF_FunctionCall;
@@ -922,7 +1066,6 @@ bool ParseFile(string p_sFileData)
 		}
 	}
 
-	cout << "Compiled!" << endl;;
 	return result;
 }
 
@@ -1089,10 +1232,17 @@ void PrintHelp(string p_sFile)
 {
 	cout << endl;
 	cout << "Shellcode Compiler " << PROGRAM_VERSION << endl;
-	cout << "Ionut Popescu @ SecureWorks" << endl << endl;;
+	cout << "Ionut Popescu [ NytroRST ]" << endl;
+	cout << "SecureWorks   [ www.secureworks.com ]" << endl << endl;
+
+	cout << "Program description" << endl;
+	cout << "-------------------" << endl;
+	cout << "\tShellcode Compiler is a program that compiles C/C++ style code " << endl;
+	cout << "into a small, position-independent and NULL-free shellcode for Windows." << endl;
+	cout << "It is possible to call any Windows API function in a user-friendly way." << endl << endl;
+
 	cout << "Command line options " << endl;
 	cout << "--------------------" << endl;
-	
 	cout << "\t-h (--help)      : Show this help message" << endl;
 	cout << "\t-v (--verbose)   : Print detailed output" << endl;
 	cout << "\t-t (--test)      : Test (execute) generated shellcode" << endl;
@@ -1190,6 +1340,76 @@ void ParseCommandLine(int argc, char *argv[])
 		cout << "Cannot compile, check command line arguments!" << endl;
 		return;
 	}
+
+	// Help
+
+	if (g_bHelp)
+	{
+		PrintHelp(argv[0]);
+		return;
+	}
+
+	// Parse source file
+
+	if (g_bReadFile)
+		ParseFile(ReadSourceFile(g_sReadFile));
+	else
+	{
+		cout << "You must specify a source code file!" << endl;
+		return;
+	}
+
+	// Output data from verbose mode
+
+	if (g_bVerbose) DumpAllData();
+
+	// Output ASM file
+
+	if (g_bASMFile)
+	{
+		if (FileExists(g_sASMFile)) DeleteSourceFile(g_sASMFile);
+		CompileAllData(g_sASMFile);
+	}
+	else
+	{
+		string sFile = GetTemp();
+		sFile += "\\SC.asm";
+		g_sASMFile = sFile;
+		if (FileExists(g_sASMFile)) DeleteSourceFile(g_sASMFile);
+		CompileAllData(sFile);
+	}
+
+	// Output file
+
+	if (!g_bOutputFile)
+		g_sOutputFile = "SC.bin";
+
+	if (FileExists(g_sOutputFile)) DeleteSourceFile(g_sOutputFile);
+
+	// Assemble command line
+
+	string sCmd = "\"";
+	sCmd += GetCurrentDir();
+	sCmd += "\\NASM\\nasm.exe\" -f bin -o \"";
+	sCmd += g_sOutputFile;
+	sCmd += "\" \"";
+	sCmd += g_sASMFile;
+	sCmd += "\"";
+
+	// Assemble
+
+	cout << endl << "Assemble command line: " << sCmd << endl;
+
+	UINT r = WinExec(sCmd.c_str(), SW_HIDE);
+
+	// Test shellcode
+
+	if (g_bTest)
+	{
+		cout << endl << "Testing shellcode..." << endl;
+		Sleep(3000);
+		TestShellcode(g_sOutputFile);
+	}
 }
 
 // Main
@@ -1211,12 +1431,6 @@ int main(int argc, char *argv[])
 	// Parse command line arguments
 
 	ParseCommandLine(argc, argv);
-
-	//ParseFile(ReadSourceFile("C:\\Users\\Ionut\\Desktop\\SC1.txt"));
-	//CompileAllData("C:\\Users\\Ionut\\Desktop\\Output.asm");
-
-	int x;
-	cin >> x;
 
 	return 0;
 }
