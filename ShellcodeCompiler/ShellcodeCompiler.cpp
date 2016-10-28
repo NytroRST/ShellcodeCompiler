@@ -112,7 +112,7 @@ void AddFunctionCallIntParameter(string p_sIntParameter)
 {
 	Parameter Param;
 	Param.Type = PARAMETER_TYPE_INT;
-	Param.IntValue = stoi(p_sIntParameter);
+	Param.IntValue = (size_t)stoll(p_sIntParameter); 
 	AllFunctionCalls[AllFunctionCallsNr].Parameters.push_back(Param);
 }
 
@@ -408,6 +408,17 @@ size_t GetStringOffset(string p_sString)
 	return 0;
 }
 
+// Convert int to hex
+
+string IntToHexString(size_t p_iNumber)
+{
+	std::stringstream stream;
+	stream << std::hex << p_iNumber;
+	std::string result(stream.str());
+
+	return result;
+}
+
 // Generate a call to LoadLibrary("string")
 
 size_t NrBasesToStack = 0;
@@ -678,8 +689,8 @@ string GenerateFunctionCall(FunctionCall p_oFunctionCall)
 			}
 			else
 			{
-				sContent += "push ";
-				sContent += to_string(p_oFunctionCall.Parameters[i].IntValue);
+				sContent += "push 0x";
+				sContent += IntToHexString(p_oFunctionCall.Parameters[i].IntValue);
 				sContent += "\r\n";
 			}
 		}
