@@ -31,7 +31,6 @@ Shellcode compiler was released at DefCamp security conference in Romania, Novem
 1. It is not possible to use the return value of an API call
 2. It is not possible to use pointers or buffers
 3. It is not possible to declare variables
-4. It is not possible to output hex strings
 
 All these limitations will be fixed as soon as possible. However, many other limitations will exist.
 This is an Alpha version. Please report any bugs or suggestions.
