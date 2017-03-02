@@ -32,6 +32,9 @@ Shellcode compiler was released at DefCamp security conference in Romania, Novem
 2. It is not possible to use pointers or buffers
 3. It is not possible to declare variables
 
+# Changelog
+1. Code refactoring
+
 All these limitations will be fixed as soon as possible. However, many other limitations will exist.
 This is an Alpha version. Please report any bugs or suggestions.
 

@@ -1,0 +1,59 @@
+
+#include "DebugUtils.h"
+
+// Dump all data - debug purposes
+
+void DebugUtils::DumpAllData()
+{
+	cout << endl;
+	for (size_t i = 0; i < DeclaredFunctions::AllDeclaredFunctions.size(); i++)
+	{
+		cout << "Declared:" << DeclaredFunctions::AllDeclaredFunctions[i].Name << " @ " << DeclaredFunctions::AllDeclaredFunctions[i].DLL << endl;
+	}
+	cout << endl;
+
+	for (size_t i = 0; i < FunctionCalls::AllFunctionCalls.size(); i++)
+	{
+		cout << "Call function: " << FunctionCalls::AllFunctionCalls[i].Name << endl;
+		for (size_t j = 0; j < FunctionCalls::AllFunctionCalls[i].Parameters.size(); j++)
+		{
+			cout << ((FunctionCalls::AllFunctionCalls[i].Parameters[j].Type == FunctionCalls::PARAMETER_TYPE_STRING) ? "String" : "Int") << " parameter: ";
+			if (FunctionCalls::AllFunctionCalls[i].Parameters[j].Type == FunctionCalls::PARAMETER_TYPE_STRING) cout << FunctionCalls::AllFunctionCalls[i].Parameters[j].StringValue << endl;
+			else cout << FunctionCalls::AllFunctionCalls[i].Parameters[j].IntValue << endl;
+		}
+	}
+	cout << endl;
+}
+
+// Test the generated shellcode
+
+void DebugUtils::TestShellcode(string p_sFilename)
+{
+	unsigned char *p = NULL;
+	size_t size = 0;
+
+	p = Utils::ReadBinaryFile(p_sFilename, &size);
+
+	// Check if successful read
+
+	if (size == 0 || p == NULL)
+	{
+		cout << "Error: Cannot read shellcode file!" << endl;
+		return;
+	}
+
+	// Get space for shellcode
+
+	void *sc = VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+
+	if (sc == NULL)
+	{
+		cout << "Error: Cannot allocate space for shellcode!" << endl;
+		return;
+	}
+
+	// Copy shellcode and execute it
+
+	memcpy(sc, p, size);
+	(*(int(*)()) sc)();
+}

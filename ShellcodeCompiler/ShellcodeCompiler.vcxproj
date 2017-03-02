@@ -29,7 +29,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -49,7 +49,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -146,12 +146,38 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ASMHeader.h" />
+    <ClInclude Include="CallFunctionsStates.h" />
+    <ClInclude Include="CommandLine.h" />
+    <ClInclude Include="Compile.h" />
+    <ClInclude Include="DebugUtils.h" />
+    <ClInclude Include="DeclaredFunctions.h" />
+    <ClInclude Include="DeclaredFunctionsStates.h" />
+    <ClInclude Include="DeclaredStates.h" />
+    <ClInclude Include="DLLBaseAddress.h" />
+    <ClInclude Include="FunctionCalls.h" />
+    <ClInclude Include="FunctionOffsetAddress.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="StringOffsetAddress.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ASMHeader.cpp" />
+    <ClCompile Include="CallFunctionsStates.cpp" />
+    <ClCompile Include="CommandLine.cpp" />
+    <ClCompile Include="Compile.cpp" />
+    <ClCompile Include="DebugUtils.cpp" />
+    <ClCompile Include="DeclaredFunctions.cpp" />
+    <ClCompile Include="DeclaredFunctionsStates.cpp" />
+    <ClCompile Include="DeclaredStates.cpp" />
+    <ClCompile Include="DLLBaseAddress.cpp" />
+    <ClCompile Include="FunctionCalls.cpp" />
+    <ClCompile Include="FunctionOffsetAddress.cpp" />
     <ClCompile Include="ShellcodeCompiler.cpp" />
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="StringOffsetAddress.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
