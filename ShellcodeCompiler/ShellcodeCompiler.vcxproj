@@ -134,6 +134,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,6 +158,7 @@
     <ClInclude Include="DLLBaseAddress.h" />
     <ClInclude Include="FunctionCalls.h" />
     <ClInclude Include="FunctionOffsetAddress.h" />
+    <ClInclude Include="SEHUtils.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringOffsetAddress.h" />
     <ClInclude Include="targetver.h" />
