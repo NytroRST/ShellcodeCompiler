@@ -34,6 +34,7 @@ Shellcode compiler was released at DefCamp security conference in Romania, Novem
 
 # Changelog
 1. Code refactoring
+2. Exception handling on testing a shellcode (Alkis Christidis)
 
 All these limitations will be fixed as soon as possible. However, many other limitations will exist.
 This is an Alpha version. Please report any bugs or suggestions.
