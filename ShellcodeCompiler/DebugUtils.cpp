@@ -1,7 +1,10 @@
 
 #include "DebugUtils.h"
+#include "SEHUtils.h"
 
 // Dump all data - debug purposes
+
+
 
 void DebugUtils::DumpAllData()
 {
@@ -53,7 +56,16 @@ void DebugUtils::TestShellcode(string p_sFilename)
 	}
 
 	// Copy shellcode and execute it
-
-	memcpy(sc, p, size);
-	(*(int(*)()) sc)();
+	try
+	{
+		_set_se_translator(CxxTranslateSehException);
+		memcpy(sc, p, size);
+		(*(int(*)()) sc)();
+	}
+	catch (const seh_exception& e)
+	{
+		cout << "Error when executing shellcode: "
+			 << e.what() << endl;
+	}
 }
+

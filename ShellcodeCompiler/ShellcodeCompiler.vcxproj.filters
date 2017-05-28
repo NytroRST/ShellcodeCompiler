@@ -63,6 +63,9 @@
     <ClInclude Include="Compile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SEHUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
