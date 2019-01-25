@@ -32,6 +32,9 @@ Shellcode compiler was released at DefCamp security conference in Romania, Novem
 2. It is not possible to use pointers or buffers
 3. It is not possible to declare variables
 
+All these limitations will be fixed as soon as possible. However, many other limitations will exist.
+This is an Alpha version. Please report any bugs or suggestions.
+
 # Changelog
 1. It uses now Keystone Engine to assemble the shellcode: http://www.keystone-engine.org/
 
@@ -43,9 +46,6 @@ Shellcode compiler was released at DefCamp security conference in Romania, Novem
 5. Run mkdir build and cd build commands
 6. Run ..\nmake-lib.bat command
 7. Copy the resulted lib file from keystone-src\build\llvm\lib\keystone.lib to ShellcodeCompiler\Keystone\keystone.lib
-
-All these limitations will be fixed as soon as possible. However, many other limitations will exist.
-This is an Alpha version. Please report any bugs or suggestions.
 
 # Author
 
