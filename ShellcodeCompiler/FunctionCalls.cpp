@@ -92,7 +92,7 @@ string FunctionCalls::GeneratePutStringToStack(string p_sString)
 		sContent += Utils::CharToHexString(p_sString[Len - 3]);
 		sContent += "\r\n";
 		sContent += "push eax\r\n";
-		sContent += "sub dword [esp + 3], 0x23\r\n";
+		sContent += "sub dword ptr [esp + 3], 0x23\r\n";
 	}
 	else cout << "Imaginary number?" << endl;
 
@@ -137,7 +137,7 @@ string FunctionCalls::GenerateFunctionCall(FunctionCalls::FunctionCall p_oFuncti
 	{
 		if (p_oFunctionCall.Parameters[i].Type == FunctionCalls::PARAMETER_TYPE_STRING)
 		{
-			sContent += "push dword [ESP + ";
+			sContent += "push dword ptr [ESP + ";
 			sContent += to_string(((CurrentParamNr - 1) * 4) + ((StringOffsetAddress::CurrentStringOffset - StringOffsetAddress::GetStringOffset(p_oFunctionCall.Parameters[i].StringValue)) * 4));
 			sContent += "]\r\n";
 		}
@@ -165,7 +165,7 @@ string FunctionCalls::GenerateFunctionCall(FunctionCalls::FunctionCall p_oFuncti
 
 	// Call function
 
-	sContent += "call dword [ESP + ";
+	sContent += "call [ESP + ";
 	sContent += to_string(((NrParam - 1) * 4) + (StringOffsetAddress::CurrentStringOffset * 4) + ((FunctionOffsetAddress::CurrentFunctionOffset - FunctionOffsetAddress::GetFunctionOffset(p_oFunctionCall.Name)) * 4));
 	sContent += "]\r\n";
 

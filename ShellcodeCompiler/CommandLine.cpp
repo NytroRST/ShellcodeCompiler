@@ -3,7 +3,7 @@
 
 // Program version
 
-#define PROGRAM_VERSION "v0.1 Alpha"
+#define PROGRAM_VERSION "v0.2 Alpha"
 
 // Global variable for command line arguments
 
@@ -26,7 +26,7 @@ void CommandLine::PrintHelp(string p_sFile)
 	cout << endl;
 	cout << "Shellcode Compiler " << PROGRAM_VERSION << endl;
 	cout << "Ionut Popescu [ NytroRST ]" << endl;
-	cout << "SecureWorks   [ www.secureworks.com ]" << endl << endl;
+	cout << "NytroSecurity [ nytrosecurity.com ]" << endl << endl;
 
 	cout << "Program description" << endl;
 	cout << "-------------------" << endl;
@@ -161,25 +161,30 @@ void CommandLine::ParseCommandLine(int argc, char *argv[])
 	// Output file
 
 	if (!g_bOutputFile)
-		g_sOutputFile = "SC.bin";
+		g_sOutputFile = "SC2.bin";
 
 	if (Utils::FileExists(g_sOutputFile)) Utils::DeleteSourceFile(g_sOutputFile);
 
-	// Assemble command line
+	// Compile using Keystone engine
 
-	string sCmd = "\"";
-	sCmd += Utils::GetCurrentDir();
-	sCmd += "\\NASM\\nasm.exe\" -f bin -o \"";
-	sCmd += g_sOutputFile;
-	sCmd += "\" \"";
-	sCmd += g_sASMFile;
-	sCmd += "\"";
+	size_t nAssembledSize = 0;
+	unsigned char *pcAssembled = KeystoneLib::Assemble(&nAssembledSize, Utils::ReadSourceFile(g_sASMFile));
 
-	// Assemble
+	if (nAssembledSize == 0)
+	{
+		cout << "ERROR: Cannot compile the code!" << endl;
+		return;
+	}
 
-	cout << endl << "Assemble command line: " << sCmd << endl;
+	// Write output to file
 
-	UINT r = WinExec(sCmd.c_str(), SW_HIDE);
+	size_t nResult = Utils::WriteBinaryFile(g_sOutputFile, pcAssembled, nAssembledSize);
+
+	if (nResult == 0)
+	{
+		cout << "ERROR: Cannot write the compiled shellcode to file!" << endl;
+		return;
+	}
 
 	// Test shellcode
 

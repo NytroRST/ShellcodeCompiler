@@ -2,6 +2,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <Windows.h>
 #include <string>
 #include <iostream>
@@ -23,6 +25,7 @@ public:
 	static string ReadSourceFile(string p_sFilename);
 	static size_t GetSize(string p_sFilename);
 	static unsigned char* ReadBinaryFile(string p_sFilename, size_t *p_rSize);
+	static size_t WriteBinaryFile(string p_sOutputFile, unsigned char *p_pcData, size_t p_nSize);
 	static void   WriteToFile(string p_sOutputFile, string p_sData);
 	static string CharToHexString(char p_cChar);
 	static string IntToHexString(size_t p_iNumber);

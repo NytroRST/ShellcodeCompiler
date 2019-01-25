@@ -134,6 +134,23 @@ void Utils::WriteToFile(string p_sOutputFile, string p_sData)
 	fclose(f);
 }
 
+// Write a binary file
+
+size_t Utils::WriteBinaryFile(string p_sOutputFile, unsigned char *p_pcData, size_t p_nSize)
+{
+	size_t nResult = 0;
+	FILE* f = fopen(p_sOutputFile.c_str(), "wb");
+
+	// Write
+
+	nResult = fwrite(p_pcData, p_nSize, sizeof(char), f);
+
+	// Close
+
+	fclose(f);
+	return nResult;
+}
+
 // Return hex string for a char
 
 string Utils::CharToHexString(char p_cChar)

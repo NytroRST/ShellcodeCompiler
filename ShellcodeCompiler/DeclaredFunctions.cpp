@@ -67,7 +67,7 @@ string DeclaredFunctions::GenerateLoadLibraryCall(string p_sDLLName)
 		sContent += Utils::CharToHexString(p_sDLLName[Len - 3]);
 		sContent += "\r\n";
 		sContent += "push eax\r\n";
-		sContent += "sub dword [esp + 3], 0x23\r\n";
+		sContent += "sub dword ptr [esp + 3], 0x23\r\n";
 	}
 	else cout << "Imaginary number?" << endl;
 
@@ -87,7 +87,7 @@ string DeclaredFunctions::GenerateLoadLibraryCall(string p_sDLLName)
 	// LoadLibrary function call
 
 	sContent += "push esp                               ; String on the stack           \r\n";
-	sContent += "call dword [esp + ";
+	sContent += "call [esp + ";
 	sContent += to_string(((Times + 2) * 4) + NrBasesToStack * 4);
 	sContent += "]\r\n";
 	sContent += "add esp, ";
@@ -145,7 +145,7 @@ string DeclaredFunctions::GenerateGetProcAddressCall(string p_sDLLName, string p
 		sContent += Utils::CharToHexString(p_sFunctionName[Len - 3]);
 		sContent += "\r\n";
 		sContent += "push eax\r\n";
-		sContent += "sub dword [esp + 3], 0x23\r\n";
+		sContent += "sub dword ptr [esp + 3], 0x23\r\n";
 	}
 	else cout << "Imaginary number?" << endl;
 
@@ -165,13 +165,13 @@ string DeclaredFunctions::GenerateGetProcAddressCall(string p_sDLLName, string p
 	// LoadLibrary function call
 
 	sContent += "push esp                               ; String on the stack            \r\n";
-	sContent += "push dword [esp + ";
+	sContent += "push dword ptr [esp + ";
 	sContent += to_string((NrFunctionsToStack * 4) + ((NrBasesToStack + 3 - DLLBaseAddress::GetDLLBase(p_sDLLName)) * 4) + ((Times + 2) * 4));
 	sContent += "] \r\n";
 
 	// Call GetProcAddress
 
-	sContent += "call dword [esp + ";
+	sContent += "call [esp + ";
 	sContent += to_string(((NrFunctionsToStack + 1) * 4) + ((NrBasesToStack + 1) * 4) + ((Times + 2) * 4));
 	sContent += "]\r\n";
 	sContent += "add esp, ";

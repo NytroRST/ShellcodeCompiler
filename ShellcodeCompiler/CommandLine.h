@@ -8,6 +8,7 @@
 #include "Utils.h"
 #include "Compile.h"
 #include "DebugUtils.h"
+#include "KeystoneLib.h"
 
 using namespace std;
 

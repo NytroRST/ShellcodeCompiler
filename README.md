@@ -33,12 +33,20 @@ Shellcode compiler was released at DefCamp security conference in Romania, Novem
 3. It is not possible to declare variables
 
 # Changelog
-1. Code refactoring
-2. Exception handling on testing a shellcode (Alkis Christidis)
+1. It uses now Keystone Engine to assemble the shellcode: http://www.keystone-engine.org/
+
+# Keystone compilation
+1. Download Keystone Engine source code
+2. Download, install and put in PATH cmake and python
+3. Open Visual Studio Command Line (32 bits) and go to Keystone source directory
+4. Edit nmake-lib.bat file and replace -DLLVM_TARGETS_TO_BUILD="all" with -DLLVM_TARGETS_TO_BUILD="X86"
+5. Run mkdir build and cd build commands
+6. Run ..\nmake-lib.bat command
+7. Copy the resulted lib file from keystone-src\build\llvm\lib\keystone.lib to ShellcodeCompiler\Keystone\keystone.lib
 
 All these limitations will be fixed as soon as possible. However, many other limitations will exist.
 This is an Alpha version. Please report any bugs or suggestions.
 
 # Author
 
-Ionut Popescu (@NytroRST) is working as a Senior Penetration Tester for SecureWorks (www.secureworks.com).
+Ionut Popescu (@NytroRST)

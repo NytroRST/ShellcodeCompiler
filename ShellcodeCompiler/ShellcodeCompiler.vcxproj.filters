@@ -66,6 +66,9 @@
     <ClInclude Include="SEHUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="KeystoneLib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -111,6 +114,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DeclaredStates.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KeystoneLib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
