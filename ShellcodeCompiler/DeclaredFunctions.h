@@ -7,6 +7,7 @@
 #include "Utils.h"
 #include "DLLBaseAddress.h"
 #include "FunctionOffsetAddress.h"
+#include "Platform.h"
 
 using namespace std;
 
@@ -31,7 +32,11 @@ public:
 	static size_t NrFunctionsToStack;
 
 	static string GenerateLoadLibraryCall(string p_sDLLName);
+	static string GenerateLoadLibraryCall_x86(string p_sDLLName);
+	static string GenerateLoadLibraryCall_x64(string p_sDLLName);
 	static string GenerateGetProcAddressCall(string p_sDLLName, string p_sFunctionName);
+	static string GenerateGetProcAddressCall_x86(string p_sDLLName, string p_sFunctionName);
+	static string GenerateGetProcAddressCall_x64(string p_sDLLName, string p_sFunctionName);
 
 	// Constructor
 

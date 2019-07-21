@@ -38,7 +38,7 @@ public:
 		string Data = "";
 		bool Process = false;
 		vector<Transform> Transforms;
-		string Name;
+		string Name = "";
 		void(*ProcessStateData)(string);
 	};
 

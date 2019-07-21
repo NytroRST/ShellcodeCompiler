@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "Platform.h"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ public:
 	};
 
 	static vector<DLLBase> DLLOffsets;
-	static size_t CurrentDLLIOffset;
+	static size_t CurrentDLLOffset;
 
 	// Create kernel32 DLL base index
 

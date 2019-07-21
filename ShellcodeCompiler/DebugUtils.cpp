@@ -4,8 +4,6 @@
 
 // Dump all data - debug purposes
 
-
-
 void DebugUtils::DumpAllData()
 {
 	cout << endl;

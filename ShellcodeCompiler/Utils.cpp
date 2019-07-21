@@ -38,8 +38,6 @@ string Utils::ReadSourceFile(string p_sFilename)
 {
 	string contents = "";
 
-	cout << "Read text file: " << p_sFilename << endl;
-
 	FILE* f = fopen(p_sFilename.c_str(), "rb");
 
 	// Get file size
@@ -194,4 +192,19 @@ string Utils::GetTemp()
 	sContent = buffer;
 
 	return sContent;
+}
+
+// Function to convert a string to lower
+
+string Utils::ToLower(string p_sString)
+{
+	string result = "";
+
+	for (size_t i = 0; i < p_sString.length(); i++)
+	{
+		if (p_sString[i] >= 65 && p_sString[i] <= 90) result += (char)(p_sString[i] + 32);
+		else result += p_sString[i];
+	}
+
+	return result;
 }

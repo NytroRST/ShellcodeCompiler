@@ -31,6 +31,7 @@ public:
 	static string IntToHexString(size_t p_iNumber);
 	static bool   IsString(char p_cCharacter);
 	static string GetTemp();
+	static string ToLower(string p_sString);
 };
 
 #endif // !UTILS_H

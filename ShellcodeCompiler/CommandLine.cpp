@@ -12,6 +12,10 @@ bool CommandLine::g_bVerbose = false;
 bool CommandLine::g_bTest = false;
 bool CommandLine::bError = false;
 
+bool CommandLine::g_bPlatform = false;
+string CommandLine::g_sPlatform = "";
+PLATFORM_TYPE CommandLine::g_ePlatform = PLATFORM_TYPE_WINDOWS_X86;
+
 bool   CommandLine::g_bReadFile = false;
 string CommandLine::g_sReadFile = "";
 bool   CommandLine::g_bOutputFile = false;
@@ -37,6 +41,7 @@ void CommandLine::PrintHelp(string p_sFile)
 	cout << "Command line options " << endl;
 	cout << "--------------------" << endl;
 	cout << "\t-h (--help)      : Show this help message" << endl;
+	cout << "\t-p (--platform)  : Shellcode platform: win_x86,win_x64,linux_x86,linux_x64" << endl;
 	cout << "\t-v (--verbose)   : Print detailed output" << endl;
 	cout << "\t-t (--test)      : Test (execute) generated shellcode" << endl;
 	cout << "\t-r (--read)      : Read source code file" << endl;
@@ -90,6 +95,16 @@ void CommandLine::ParseCommandLine(int argc, char *argv[])
 				cout << endl << "Missing required value for -r argument" << endl;
 			}
 		}
+		else if (CurrentParam.compare("-p") == 0 || CurrentParam.compare("--platform") == 0)
+		{
+			g_bPlatform = true;
+			if (NextParam.length() > 0) g_sPlatform = NextParam;
+			else
+			{
+				bError = true;
+				cout << endl << "Missing required value for -p argument" << endl;
+			}
+		}
 		else if (CurrentParam.compare("-o") == 0 || CurrentParam.compare("--output") == 0)
 		{
 			g_bOutputFile = true;
@@ -126,6 +141,14 @@ void CommandLine::ParseCommandLine(int argc, char *argv[])
 	{
 		PrintHelp(argv[0]);
 		return;
+	}
+
+	// Set platform
+
+	if (g_bPlatform)
+	{
+		Platform::SetPlatformString(g_sPlatform);
+		cout << endl << "Target platform: " << Platform::GetPlatformString() << endl;
 	}
 
 	// Parse source file

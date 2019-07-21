@@ -3,6 +3,7 @@
 #define ASMHEADER_H
 
 #include <string>
+#include "Platform.h"
 
 using namespace std;
 
@@ -12,6 +13,8 @@ class ASMHeader
 {
 public:
 	static string GetASMHeader();
+	static string GetASMHeader_x86();
+	static string GetASMHeader_x64();
 };
 
 #endif

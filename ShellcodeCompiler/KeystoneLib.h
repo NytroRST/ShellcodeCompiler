@@ -4,10 +4,17 @@
 #include <string>
 #include <iostream>
 
+#include "Platform.h"
+
 // Keystone: http://www.keystone-engine.org/
 
 #include "../Keystone/include/keystone/keystone.h"
-#pragma comment(lib, "../Keystone/keystone.lib")
+
+#if defined _M_IX86
+#pragma comment(lib, "../Keystone/keystone_win32.lib")
+#elif defined _M_X64
+#pragma comment(lib, "../Keystone/keystone_win64.lib")
+#endif
 
 using namespace std;
 
