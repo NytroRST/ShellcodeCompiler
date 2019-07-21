@@ -8,7 +8,7 @@ Shellcode compiler was released at DefCamp security conference in Romania, Novem
 
 # Command line options
         -h (--help)      : Show this help message
-	-p (--platform)  : Shellcode platform: win_x86,win_x64,linux_x86,linux_x64
+        -p (--platform)  : Shellcode platform: win_x86,win_x64,linux_x86,linux_x64
         -v (--verbose)   : Print detailed output
         -t (--test)      : Test (execute) generated shellcode
         -r (--read)      : Read source code file
