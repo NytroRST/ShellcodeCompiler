@@ -26,12 +26,12 @@ Shellcode Compiler takes as input a source file and it uses it's own compiler to
 
 # Linux example
 
-		chmod("/root/chmodme",511);
-		write(1,"Hello, world",12);
-		kill(1661,9);
-		getpid();
-		execve("/usr/bin/burpsuite",0,0);
-		exit(2);
+        chmod("/root/chmodme",511);
+        write(1,"Hello, world",12);
+        kill(1661,9);
+        getpid();
+        execve("/usr/bin/burpsuite",0,0);
+        exit(2);
 
 # Invocation example
 
