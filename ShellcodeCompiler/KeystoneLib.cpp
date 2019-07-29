@@ -14,7 +14,7 @@ unsigned char* KeystoneLib::Assemble(size_t *p_pSize, string p_sASM)
 
 	// Open keystone engine
 
-	if(Platform::GetPlatform() == PLATFORM_TYPE_WINDOWS_X64) err = ks_open(KS_ARCH_X86, KS_MODE_64, &ks);
+	if(Platform::GetPlatform() == PLATFORM_TYPE_WINDOWS_X64 || Platform::GetPlatform() == PLATFORM_TYPE_LINUX_X64) err = ks_open(KS_ARCH_X86, KS_MODE_64, &ks);
 	else err = ks_open(KS_ARCH_X86, KS_MODE_32, &ks);
 
 	if (err != KS_ERR_OK) {

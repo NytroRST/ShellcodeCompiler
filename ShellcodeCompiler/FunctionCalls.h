@@ -9,6 +9,7 @@
 #include "StringOffsetAddress.h"
 #include "FunctionOffsetAddress.h"
 #include "Platform.h"
+#include "LinuxSyscalls.h"
 
 using namespace std;
 
@@ -55,11 +56,14 @@ FunctionCalls()
 static string GeneratePutStringToStack_x86(string p_sString);
 static string GeneratePutStringToStack_x64(string p_sString);
 
-// Generate a function call
+// Generate a function call / syscall
 
 static string GenerateFunctionCall(FunctionCalls::FunctionCall p_oFunctionCall);
 static string GenerateFunctionCall_x86(FunctionCalls::FunctionCall p_oFunctionCall);
 static string GenerateFunctionCall_x64(FunctionCalls::FunctionCall p_oFunctionCall);
+
+static string GenerateLinuxSyscall_x86(FunctionCalls::FunctionCall p_oFunctionCall);
+static string GenerateLinuxSyscall_x64(FunctionCalls::FunctionCall p_oFunctionCall);
 
 // Add function call name
 

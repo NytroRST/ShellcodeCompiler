@@ -1,9 +1,5 @@
 function RegSetKeyValueA("advapi32.dll");
-
 function ExitProcess("kernel32.dll");
 
-
-
 RegSetKeyValueA(2147483649,"Software\Microsoft\Notepad","Test",1,"Nytro",5);
-
 ExitProcess(0);

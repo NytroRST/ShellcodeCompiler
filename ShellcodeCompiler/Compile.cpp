@@ -75,7 +75,7 @@ bool Compile::ParseFile(string p_sFileData)
 					if (p_sFileData[i] == ';' || i == p_sFileData.length()) break;
 				}
 			}
-			else if (FunctionCalls::FunctionExists(sReadString))
+			else if (FunctionCalls::FunctionExists(sReadString) || LinuxSyscalls::SyscallExists(sReadString))
 			{
 				FunctionCalls::AddFunctionCallName(sReadString);
 
@@ -143,26 +143,40 @@ bool Compile::ParseFile(string p_sFileData)
 
 void Compile::CompileAllData(string p_sOutput)
 {
-	Utils::WriteToFile(p_sOutput, ASMHeader::GetASMHeader());
+	// Compile for Windows
 
-	// Generate LoadLibrary for all DLLs (from declared functions)
-
-	for (size_t i = 0; i < DeclaredFunctions::AllDeclaredFunctions.size(); i++)
+	if (Platform::GetPlatform() == PLATFORM_TYPE_LINUX_X86 || Platform::GetPlatform() == PLATFORM_TYPE_LINUX_X64)
 	{
-		Utils::WriteToFile(p_sOutput, DeclaredFunctions::GenerateLoadLibraryCall(DeclaredFunctions::AllDeclaredFunctions[i].DLL));
+		// Generate system calls for all system calls
+
+		for (size_t i = 0; i < FunctionCalls::AllFunctionCalls.size(); i++)
+		{
+			Utils::WriteToFile(p_sOutput, FunctionCalls::GenerateFunctionCall(FunctionCalls::AllFunctionCalls[i]));
+		}
 	}
-
-	// Generate GetProcAddress for all declared functions
-
-	for (size_t i = 0; i < DeclaredFunctions::AllDeclaredFunctions.size(); i++)
+	else
 	{
-		Utils::WriteToFile(p_sOutput, DeclaredFunctions::GenerateGetProcAddressCall(DeclaredFunctions::AllDeclaredFunctions[i].DLL, DeclaredFunctions::AllDeclaredFunctions[i].Name));
-	}
+		Utils::WriteToFile(p_sOutput, ASMHeader::GetASMHeader());
 
-	// Generate function calls for all function calls
+		// Generate LoadLibrary for all DLLs (from declared functions)
 
-	for (size_t i = 0; i < FunctionCalls::AllFunctionCalls.size(); i++)
-	{
-		Utils::WriteToFile(p_sOutput, FunctionCalls::GenerateFunctionCall(FunctionCalls::AllFunctionCalls[i]));
+		for (size_t i = 0; i < DeclaredFunctions::AllDeclaredFunctions.size(); i++)
+		{
+			Utils::WriteToFile(p_sOutput, DeclaredFunctions::GenerateLoadLibraryCall(DeclaredFunctions::AllDeclaredFunctions[i].DLL));
+		}
+
+		// Generate GetProcAddress for all declared functions
+
+		for (size_t i = 0; i < DeclaredFunctions::AllDeclaredFunctions.size(); i++)
+		{
+			Utils::WriteToFile(p_sOutput, DeclaredFunctions::GenerateGetProcAddressCall(DeclaredFunctions::AllDeclaredFunctions[i].DLL, DeclaredFunctions::AllDeclaredFunctions[i].Name));
+		}
+
+		// Generate function calls for all function calls
+
+		for (size_t i = 0; i < FunctionCalls::AllFunctionCalls.size(); i++)
+		{
+			Utils::WriteToFile(p_sOutput, FunctionCalls::GenerateFunctionCall(FunctionCalls::AllFunctionCalls[i]));
+		}
 	}
 }

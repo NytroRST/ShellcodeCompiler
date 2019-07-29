@@ -44,7 +44,7 @@ string DeclaredFunctions::GenerateLoadLibraryCall_x86(string p_sDLLName)
 
 	if (DLLBaseAddress::DLLBaseExists(p_sDLLName)) return "";
 
-	sContent  = "; LoadLibrary(" + p_sDLLName + ")\r\n\r\n";
+	sContent = "; LoadLibrary(" + p_sDLLName + ")\r\n\r\n";
 
 	if (Len % 4 == 0)
 	{

@@ -169,6 +169,7 @@
     <ClInclude Include="FunctionCalls.h" />
     <ClInclude Include="FunctionOffsetAddress.h" />
     <ClInclude Include="KeystoneLib.h" />
+    <ClInclude Include="LinuxSyscalls.h" />
     <ClInclude Include="Platform.h" />
     <ClInclude Include="SEHUtils.h" />
     <ClInclude Include="stdafx.h" />
@@ -189,6 +190,7 @@
     <ClCompile Include="FunctionCalls.cpp" />
     <ClCompile Include="FunctionOffsetAddress.cpp" />
     <ClCompile Include="KeystoneLib.cpp" />
+    <ClCompile Include="LinuxSyscalls.cpp" />
     <ClCompile Include="Platform.cpp" />
     <ClCompile Include="ShellcodeCompiler.cpp" />
     <ClCompile Include="stdafx.cpp" />

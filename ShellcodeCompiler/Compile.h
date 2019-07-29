@@ -10,6 +10,8 @@
 #include "DeclaredFunctions.h"
 #include "FunctionCalls.h"
 #include "ASMHeader.h"
+#include "LinuxSyscalls.h"
+#include "Platform.h"
 
 using namespace std;
 

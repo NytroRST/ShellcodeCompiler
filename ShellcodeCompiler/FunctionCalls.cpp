@@ -240,7 +240,9 @@ string FunctionCalls::GeneratePutStringToStack_x64(string p_sString)
 
 string FunctionCalls::GenerateFunctionCall(FunctionCalls::FunctionCall p_oFunctionCall)
 {
-	if (Platform::GetPlatform() == PLATFORM_TYPE_WINDOWS_X64) return GenerateFunctionCall_x64(p_oFunctionCall);
+	if (Platform::GetPlatform() == PLATFORM_TYPE_LINUX_X86) return GenerateLinuxSyscall_x86(p_oFunctionCall);
+	else if (Platform::GetPlatform() == PLATFORM_TYPE_LINUX_X64) return GenerateLinuxSyscall_x64(p_oFunctionCall);
+	else if (Platform::GetPlatform() == PLATFORM_TYPE_WINDOWS_X64) return GenerateFunctionCall_x64(p_oFunctionCall);
 	else return GenerateFunctionCall_x86(p_oFunctionCall);
 }
 
@@ -259,7 +261,7 @@ string FunctionCalls::GenerateFunctionCall_x86(FunctionCalls::FunctionCall p_oFu
 
 	// Parse all arguments (from the end)
 
-	for (size_t i = NrParam - 1; ; i--)
+	for (size_t i = NrParam - 1; NrParam; i--)
 	{
 		if (p_oFunctionCall.Parameters[i].Type == FunctionCalls::PARAMETER_TYPE_STRING)
 		{
@@ -334,7 +336,7 @@ string FunctionCalls::GenerateFunctionCall_x64(FunctionCalls::FunctionCall p_oFu
 
 	// Parse all arguments (from the end)
 
-	for (size_t i = NrParam - 1; ; i--)
+	for (size_t i = NrParam - 1; NrParam; i--)
 	{
 		// We treat separatelty first 4 registers
 		
@@ -406,6 +408,184 @@ string FunctionCalls::GenerateFunctionCall_x64(FunctionCalls::FunctionCall p_oFu
 		sContent += to_string((NrParam - ParamsInRegisters) * 8 + StringOffsetAddress::CurrentStringOffset * 8);
 		sContent += "\r\n";
 	}
+
+	// Clean global strings data
+
+	StringOffsetAddress::CurrentStringOffset = 0;
+	StringOffsetAddress::StringOffsets.clear();
+
+	return sContent;
+}
+
+// Generate a Linux syscall for x86
+
+string FunctionCalls::GenerateLinuxSyscall_x86(FunctionCalls::FunctionCall p_oFunctionCall)
+{
+	string sContent = "";
+	size_t NrParam = p_oFunctionCall.Parameters.size();
+	size_t ParamsInRegisters = (NrParam >= 6) ? 6 : NrParam;
+	size_t CurrentParamNr = 1;
+
+	// First, put all string parameters on the stack
+
+	for (size_t i = 0; i < p_oFunctionCall.Parameters.size(); i++)
+		if (p_oFunctionCall.Parameters[i].Type == FunctionCalls::PARAMETER_TYPE_STRING) sContent += GeneratePutStringToStack_x86(p_oFunctionCall.Parameters[i].StringValue);
+
+	// Parse all arguments (from the end)
+
+	for (size_t i = NrParam - 1; NrParam; i--)
+	{
+		if (p_oFunctionCall.Parameters[i].Type == FunctionCalls::PARAMETER_TYPE_STRING)
+		{
+			size_t CurrentParamNotInRegisters = (CurrentParamNr > 6) ? (CurrentParamNr - 6) : ((NrParam <= 6) ? 0 : (NrParam - 6));
+			string str_offset = to_string(((CurrentParamNotInRegisters) * 4) + ((StringOffsetAddress::CurrentStringOffset - StringOffsetAddress::GetStringOffset(p_oFunctionCall.Parameters[i].StringValue)) * 4));
+
+			if (i == 0) sContent += "mov ebx, [ESP + " + str_offset + "] \r\n";
+			else if (i == 1) sContent += "mov ecx, [ESP + " + str_offset + "] \r\n";
+			else if (i == 2) sContent += "mov edx,  [ESP + " + str_offset + "] \r\n";
+			else if (i == 3) sContent += "mov esi,  [ESP + " + str_offset + "] \r\n";
+			else if (i == 4) sContent += "mov edi,  [ESP + " + str_offset + "] \r\n";
+			else if (i == 5) sContent += "mov ebp,  [ESP + " + str_offset + "] \r\n";
+			else sContent += "push [ESP + " + str_offset + "]\r\n";
+		}
+		else if (p_oFunctionCall.Parameters[i].Type == FunctionCalls::PARAMETER_TYPE_INT)
+		{
+			// If int parameter is 0, avoid NULL
+
+			if (p_oFunctionCall.Parameters[i].IntValue == 0)
+			{
+				if (i == 0) sContent += "xor ebx, ebx \r\n";
+				else if (i == 1) sContent += "xor ecx, ecx \r\n";
+				else if (i == 2) sContent += "xor edx, edx \r\n";
+				else if (i == 3) sContent += "xor esi, esi \r\n";
+				else if (i == 4) sContent += "xor edi, edi \r\n";
+				else if (i == 5) sContent += "xor ebp, ebp \r\n";
+				else sContent += "xor eax, eax \r\npush eax \r\n";
+			}
+			else
+			{
+				if (i == 0) sContent += "mov ebx, 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+				else if (i == 1) sContent += "mov ecx, 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+				else if (i == 2) sContent += "mov edx, 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+				else if (i == 3) sContent += "mov esi, 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+				else if (i == 4) sContent += "mov edi, 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+				else if (i == 5) sContent += "mov ebp, 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+				else sContent += "push 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+			}
+		}
+		else cout << "Error: Undefined parameter type!" << endl;
+
+		CurrentParamNr++;
+		if (i == 0) break;
+	}
+
+	// Syscall
+
+	int syscallnr = LinuxSyscalls::GetSyscallNr(p_oFunctionCall.Name);
+	if (syscallnr == LINUX_SYSCALL_UNKNOWN) return "; " + p_oFunctionCall.Name + " syscall not found! \r\n\r\n";
+
+	sContent += "mov eax, 0x" + Utils::IntToHexString(syscallnr) + "\r\n";
+	sContent += "int 0x80 ; Syscall\r\n";
+
+	// Clean string parameters and parameters
+
+	if ( (StringOffsetAddress::CurrentStringOffset > 0) || (NrParam > 6) )
+	{
+		sContent += "add ESP, ";
+		sContent += to_string( (StringOffsetAddress::CurrentStringOffset + (NrParam > 6 ? (NrParam - 6) : 0) ) * 4);
+		sContent += "\r\n";
+	}
+
+	sContent += "\r\n";
+
+	// Clean global strings data
+
+	StringOffsetAddress::CurrentStringOffset = 0;
+	StringOffsetAddress::StringOffsets.clear();
+
+	return sContent;
+}
+
+// Generate a Linux syscall for x64
+
+string FunctionCalls::GenerateLinuxSyscall_x64(FunctionCalls::FunctionCall p_oFunctionCall)
+{
+	string sContent = "";
+	size_t NrParam = p_oFunctionCall.Parameters.size();
+	size_t ParamsInRegisters = (NrParam >= 6) ? 6 : NrParam;
+	size_t CurrentParamNr = 1;
+
+	// First, put all string parameters on the stack
+
+	for (size_t i = 0; i < p_oFunctionCall.Parameters.size(); i++)
+		if (p_oFunctionCall.Parameters[i].Type == FunctionCalls::PARAMETER_TYPE_STRING) sContent += GeneratePutStringToStack_x64(p_oFunctionCall.Parameters[i].StringValue);
+
+	// Parse all arguments (from the end)
+
+	for (size_t i = NrParam - 1; NrParam; i--)
+	{
+		if (p_oFunctionCall.Parameters[i].Type == FunctionCalls::PARAMETER_TYPE_STRING)
+		{
+			size_t CurrentParamNotInRegisters = (CurrentParamNr > 6) ? (CurrentParamNr - 6) : ((NrParam <= 6) ? 0 : (NrParam - 6));
+			string str_offset = to_string(((CurrentParamNotInRegisters) * 8) + ((StringOffsetAddress::CurrentStringOffset - StringOffsetAddress::GetStringOffset(p_oFunctionCall.Parameters[i].StringValue)) * 8));
+
+			if (i == 0) sContent += "mov rdi, [RSP + " + str_offset + "] \r\n";
+			else if (i == 1) sContent += "mov rsi, [RSP + " + str_offset + "] \r\n";
+			else if (i == 2) sContent += "mov rdx,  [RSP + " + str_offset + "] \r\n";
+			else if (i == 3) sContent += "mov r10,  [RSP + " + str_offset + "] \r\n";
+			else if (i == 4) sContent += "mov r8,  [RSP + " + str_offset + "] \r\n";
+			else if (i == 5) sContent += "mov r9,  [RSP + " + str_offset + "] \r\n";
+			else sContent += "push [RSP + " + str_offset + "]\r\n";
+		}
+		else if (p_oFunctionCall.Parameters[i].Type == FunctionCalls::PARAMETER_TYPE_INT)
+		{
+			// If int parameter is 0, avoid NULL
+
+			if (p_oFunctionCall.Parameters[i].IntValue == 0)
+			{
+				if (i == 0) sContent += "xor rdi, rdi \r\n";
+				else if (i == 1) sContent += "xor rsi, rsi \r\n";
+				else if (i == 2) sContent += "xor rdx, rdx \r\n";
+				else if (i == 3) sContent += "xor r10, r10 \r\n";
+				else if (i == 4) sContent += "xor r8, r8 \r\n";
+				else if (i == 5) sContent += "xor r9, r9 \r\n";
+				else sContent += "xor rax, rax \r\npush rax \r\n";
+			}
+			else
+			{
+				if (i == 0) sContent += "mov rdi, 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+				else if (i == 1) sContent += "mov rsi, 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+				else if (i == 2) sContent += "mov rdx, 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+				else if (i == 3) sContent += "mov r10, 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+				else if (i == 4) sContent += "mov r8, 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+				else if (i == 5) sContent += "mov r9, 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+				else sContent += "push 0x" + Utils::IntToHexString(p_oFunctionCall.Parameters[i].IntValue) + "\r\n";
+			}
+		}
+		else cout << "Error: Undefined parameter type!" << endl;
+
+		CurrentParamNr++;
+		if (i == 0) break;
+	}
+
+	// Syscall
+
+	int syscallnr = LinuxSyscalls::GetSyscallNr(p_oFunctionCall.Name);
+	if (syscallnr == LINUX_SYSCALL_UNKNOWN) return "; " + p_oFunctionCall.Name + " syscall not found! \r\n\r\n";
+
+	sContent += "mov rax, 0x" + Utils::IntToHexString(syscallnr) + "\r\n";
+	sContent += "syscall ; Syscall\r\n";
+
+	// Clean string parameters and parameters
+
+	if ((StringOffsetAddress::CurrentStringOffset > 0) || (NrParam > 6))
+	{
+		sContent += "add RSP, ";
+		sContent += to_string((StringOffsetAddress::CurrentStringOffset + (NrParam > 6 ? (NrParam - 6) : 0)) * 8);
+		sContent += "\r\n";
+	}
+
+	sContent += "\r\n";
 
 	// Clean global strings data
 

@@ -1,14 +1,7 @@
-
 function CopyFileA("kernel32.dll");
-
 function DeleteFileA("kernel32.dll");
-
 function ExitProcess("kernel32.dll");
 
-
-
 CopyFileA("C:\Windows\System32\calc.exe","C:\Users\Ionut\Desktop\calc.exe",0);
-
 DeleteFileA("C:\Users\Ionut\Desktop\Delete.txt");
-
 ExitProcess(0);

