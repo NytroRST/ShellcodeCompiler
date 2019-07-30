@@ -1,6 +1,13 @@
 
 #include "DebugUtils.h"
-#include "SEHUtils.h"
+
+#if defined(_WIN32)
+	#include "SEHUtils.h"
+#else 
+	#include <cstdlib>
+	#include <cstring>
+	#include <sys/mman.h>
+#endif
 
 // Dump all data - debug purposes
 
@@ -43,6 +50,8 @@ void DebugUtils::TestShellcode(string p_sFilename)
 		return;
 	}
 
+#if defined(_WIN32)
+
 	// Get space for shellcode
 
 	void *sc = VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
@@ -65,5 +74,23 @@ void DebugUtils::TestShellcode(string p_sFilename)
 		cout << "Error when executing shellcode: "
 			 << e.what() << endl;
 	}
+
+#else 
+
+	// Test shellcode on Linux
+
+	unsigned char *sc = (unsigned char*)valloc(size);
+
+	if (sc == NULL)
+	{
+		cout << "Error: Cannot allocate space for shellcode!" << endl;
+		return;
+	}
+
+	memcpy(sc, p, size);
+	mprotect(sc, size, PROT_READ | PROT_EXEC);
+	(*(int(*)())sc)();
+
+#endif
 }
 

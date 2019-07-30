@@ -3,7 +3,7 @@
 
 // Program version
 
-#define PROGRAM_VERSION "v0.2 Alpha"
+#define PROGRAM_VERSION "v2.0 Alpha"
 
 // Global variable for command line arguments
 
@@ -33,13 +33,14 @@ void CommandLine::PrintHelp(string p_sFile)
 	cout << "NytroSecurity [ nytrosecurity.com ]" << endl << endl;
 
 	cout << "Program description" << endl;
-	cout << "-------------------" << endl;
-	cout << "\tShellcode Compiler is a program that compiles C/C++ style code " << endl;
-	cout << "into a small, position-independent and NULL-free shellcode for Windows." << endl;
-	cout << "It is possible to call any Windows API function in a user-friendly way." << endl << endl;
+	cout << "-------------------" << endl << endl;
+	cout << "\tShellcode Compiler is a program that compiles C/C++ style code into a small, " << endl;
+	cout << "\tposition-independent and NULL-free shellcode for Windows (x86 and x64) and " << endl;
+	cout << "\tLinux(x86 and x64). It is possible to call any Windows API function or Linux " << endl;
+	cout << "\tsyscall in a user - friendly way. " << endl << endl;
 
 	cout << "Command line options " << endl;
-	cout << "--------------------" << endl;
+	cout << "--------------------" << endl << endl;
 	cout << "\t-h (--help)      : Show this help message" << endl;
 	cout << "\t-p (--platform)  : Shellcode platform: win_x86,win_x64,linux_x86,linux_x64" << endl;
 	cout << "\t-v (--verbose)   : Print detailed output" << endl;
@@ -48,8 +49,8 @@ void CommandLine::PrintHelp(string p_sFile)
 	cout << "\t-o (--output)    : Output file of the generated binary shellcode" << endl;
 	cout << "\t-a (--assembbly) : Output file of the generated assembly code" << endl << endl;
 
-	cout << "Source code example" << endl;
-	cout << "-------------------" << endl << endl;
+	cout << "Windows example" << endl;
+	cout << "---------------" << endl << endl;
 	cout << "\tfunction URLDownloadToFileA(\"urlmon.dll\");" << endl;
 	cout << "\tfunction WinExec(\"kernel32.dll\");" << endl;
 	cout << "\tfunction ExitProcess(\"kernel32.dll\");" << endl << endl;
@@ -57,9 +58,18 @@ void CommandLine::PrintHelp(string p_sFile)
 	cout << "\tWinExec(\"bk.exe\",0);" << endl;
 	cout << "\tExitProcess(0);" << endl << endl;
 
+	cout << "Linux example" << endl;
+	cout << "-------------" << endl << endl;
+	cout << "\tchmod(\"/root/chmodme\", 511);" << endl;
+	cout << "\twrite(1, \"Hello, world\", 12);" << endl;
+	cout << "\tkill(1661, 9);" << endl;
+	cout << "\tgetpid();" << endl;
+	cout << "\texecve(\"/usr/bin/burpsuite\", 0, 0);" << endl;
+	cout << "\texit(2" << endl << endl;
+
 	cout << "Invocation example" << endl;
-	cout << "------------------" << endl;
-	cout << "\t" << p_sFile << " -r Source.txt -o Shellcode.bin -a Assembly.asm" << endl;
+	cout << "------------------" << endl << endl;
+	cout << "\t" << p_sFile << " -p windows_x64 -r Source.txt -o Shellcode.bin -a Assembly.asm" << endl << endl;
 }
 
 // Parse command line arguments
@@ -165,33 +175,29 @@ void CommandLine::ParseCommandLine(int argc, char *argv[])
 
 	if (g_bVerbose) DebugUtils::DumpAllData();
 
+	// Compile all data
+
+	string sASMOutput = Compile::CompileAllData();
+
 	// Output ASM file
 
 	if (g_bASMFile)
 	{
 		if (Utils::FileExists(g_sASMFile)) Utils::DeleteSourceFile(g_sASMFile);
-		Compile::CompileAllData(g_sASMFile);
-	}
-	else
-	{
-		string sFile = Utils::GetTemp();
-		sFile += "\\SC.asm";
-		g_sASMFile = sFile;
-		if (Utils::FileExists(g_sASMFile)) Utils::DeleteSourceFile(g_sASMFile);
-		Compile::CompileAllData(sFile);
+		Utils::WriteToFile(g_sASMFile, sASMOutput);
 	}
 
 	// Output file
 
 	if (!g_bOutputFile)
-		g_sOutputFile = "SC2.bin";
+		g_sOutputFile = "Shellcode.bin";
 
 	if (Utils::FileExists(g_sOutputFile)) Utils::DeleteSourceFile(g_sOutputFile);
 
 	// Compile using Keystone engine
 
 	size_t nAssembledSize = 0;
-	unsigned char *pcAssembled = KeystoneLib::Assemble(&nAssembledSize, Utils::ReadSourceFile(g_sASMFile));
+	unsigned char *pcAssembled = KeystoneLib::Assemble(&nAssembledSize, sASMOutput);
 
 	if (nAssembledSize == 0)
 	{
@@ -214,7 +220,14 @@ void CommandLine::ParseCommandLine(int argc, char *argv[])
 	if (g_bTest)
 	{
 		cout << endl << "Testing shellcode..." << endl;
-		Sleep(3000);
+
+		// Cross platform sleeping (be sure output file is written)
+
+#if defined(_WIN32)
+		Sleep(1000);
+#else 
+		sleep(1);
+#endif 
 		DebugUtils::TestShellcode(g_sOutputFile);
 	}
 }

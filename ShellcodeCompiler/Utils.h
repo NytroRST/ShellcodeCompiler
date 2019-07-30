@@ -4,7 +4,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-#include <Windows.h>
+#include <cstdio>
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -19,7 +19,6 @@ public:
 
 	// All utilities
 
-	static string GetCurrentDir();
 	static bool   FileExists(string p_sPath);
 	static bool   DeleteSourceFile(string p_sFile);
 	static string ReadSourceFile(string p_sFilename);
@@ -30,7 +29,6 @@ public:
 	static string CharToHexString(char p_cChar);
 	static string IntToHexString(size_t p_iNumber);
 	static bool   IsString(char p_cCharacter);
-	static string GetTemp();
 	static string ToLower(string p_sString);
 };
 

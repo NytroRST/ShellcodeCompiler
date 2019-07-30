@@ -5,6 +5,12 @@
 #include <string>
 #include <iostream>
 
+#if defined(_WIN32)
+#include <Windows.h>
+#else 
+#include <unistd.h>
+#endif
+
 #include "Utils.h"
 #include "Compile.h"
 #include "DebugUtils.h"

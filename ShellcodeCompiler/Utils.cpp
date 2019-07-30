@@ -1,35 +1,24 @@
 
 #include "Utils.h"
 
-// Get current working directory
-
-string Utils::GetCurrentDir()
-{
-	char buffer[1024];
-	string sContent = "";
-
-	DWORD r = GetCurrentDirectory(1024, buffer);
-
-	if (r == 0) return "";
-	sContent = buffer;
-
-	return sContent;
-}
-
 // Check if a file exists
 
 bool Utils::FileExists(string p_sPath)
 {
-	DWORD dwAttrib = GetFileAttributes(p_sPath.c_str());
-
-	return (dwAttrib != INVALID_FILE_ATTRIBUTES);
+	if (FILE * file = fopen(p_sPath.c_str(), "r")) {
+		fclose(file);
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 // Delete a file
 
 bool Utils::DeleteSourceFile(string p_sFile)
 {
-	return (bool)DeleteFile(p_sFile.c_str());
+	return (bool)remove(p_sFile.c_str());
 }
 
 // Function used to read a file
@@ -177,21 +166,6 @@ bool Utils::IsString(char p_cCharacter)
 {
 	return (p_cCharacter >= 32 && p_cCharacter <= 126 &&
 		p_cCharacter != '"' && p_cCharacter != ')' && p_cCharacter != '(' && p_cCharacter != ',');
-}
-
-// Get TEMP folder
-
-string Utils::GetTemp()
-{
-	char buffer[1024];
-	string sContent = "";
-
-	DWORD r = GetTempPath(1024, buffer);
-
-	if (r == 0) return "";
-	sContent = buffer;
-
-	return sContent;
 }
 
 // Function to convert a string to lower

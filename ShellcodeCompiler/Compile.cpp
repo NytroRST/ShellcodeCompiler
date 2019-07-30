@@ -141,8 +141,10 @@ bool Compile::ParseFile(string p_sFileData)
 
 // Compile all parsed data into ASM file
 
-void Compile::CompileAllData(string p_sOutput)
+string Compile::CompileAllData()
 {
+	string sOutput = "";
+	
 	// Compile for Windows
 
 	if (Platform::GetPlatform() == PLATFORM_TYPE_LINUX_X86 || Platform::GetPlatform() == PLATFORM_TYPE_LINUX_X64)
@@ -151,32 +153,34 @@ void Compile::CompileAllData(string p_sOutput)
 
 		for (size_t i = 0; i < FunctionCalls::AllFunctionCalls.size(); i++)
 		{
-			Utils::WriteToFile(p_sOutput, FunctionCalls::GenerateFunctionCall(FunctionCalls::AllFunctionCalls[i]));
+			sOutput += FunctionCalls::GenerateFunctionCall(FunctionCalls::AllFunctionCalls[i]);
 		}
 	}
 	else
 	{
-		Utils::WriteToFile(p_sOutput, ASMHeader::GetASMHeader());
+		sOutput += ASMHeader::GetASMHeader();
 
 		// Generate LoadLibrary for all DLLs (from declared functions)
 
 		for (size_t i = 0; i < DeclaredFunctions::AllDeclaredFunctions.size(); i++)
 		{
-			Utils::WriteToFile(p_sOutput, DeclaredFunctions::GenerateLoadLibraryCall(DeclaredFunctions::AllDeclaredFunctions[i].DLL));
+			sOutput += DeclaredFunctions::GenerateLoadLibraryCall(DeclaredFunctions::AllDeclaredFunctions[i].DLL);
 		}
 
 		// Generate GetProcAddress for all declared functions
 
 		for (size_t i = 0; i < DeclaredFunctions::AllDeclaredFunctions.size(); i++)
 		{
-			Utils::WriteToFile(p_sOutput, DeclaredFunctions::GenerateGetProcAddressCall(DeclaredFunctions::AllDeclaredFunctions[i].DLL, DeclaredFunctions::AllDeclaredFunctions[i].Name));
+			sOutput += DeclaredFunctions::GenerateGetProcAddressCall(DeclaredFunctions::AllDeclaredFunctions[i].DLL, DeclaredFunctions::AllDeclaredFunctions[i].Name);
 		}
 
 		// Generate function calls for all function calls
 
 		for (size_t i = 0; i < FunctionCalls::AllFunctionCalls.size(); i++)
 		{
-			Utils::WriteToFile(p_sOutput, FunctionCalls::GenerateFunctionCall(FunctionCalls::AllFunctionCalls[i]));
+			sOutput += FunctionCalls::GenerateFunctionCall(FunctionCalls::AllFunctionCalls[i]);
 		}
 	}
+
+	return sOutput;
 }
