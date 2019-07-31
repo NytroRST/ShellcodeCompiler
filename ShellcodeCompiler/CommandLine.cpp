@@ -65,7 +65,7 @@ void CommandLine::PrintHelp(string p_sFile)
 	cout << "\tkill(1661, 9);" << endl;
 	cout << "\tgetpid();" << endl;
 	cout << "\texecve(\"/usr/bin/burpsuite\", 0, 0);" << endl;
-	cout << "\texit(2" << endl << endl;
+	cout << "\texit(2);" << endl << endl;
 
 	cout << "Invocation example" << endl;
 	cout << "------------------" << endl << endl;

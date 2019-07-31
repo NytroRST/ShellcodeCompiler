@@ -24,6 +24,8 @@ unsigned char* KeystoneLib::Assemble(size_t *p_pSize, string p_sASM)
 
 	// Assemble the code
 
+	ks_option(ks, KS_OPT_SYNTAX, KS_OPT_SYNTAX_NASM);
+
 	if (ks_asm(ks, p_sASM.c_str(), 0, &encode, &size, &count)) {
 		cout << "ERROR: Failed on ks_asm() with count = " << count << ", error code = " <<  ks_errno(ks) << endl;
 		return NULL;

@@ -77,7 +77,7 @@ string DeclaredFunctions::GenerateLoadLibraryCall_x86(string p_sDLLName)
 		sContent += Utils::CharToHexString(p_sDLLName[Len - 3]);
 		sContent += "\r\n";
 		sContent += "push eax\r\n";
-		sContent += "sub dword ptr [esp + 3], 0x23\r\n";
+		sContent += "sub dword [esp + 3], 0x23\r\n";
 	}
 	else cout << "Imaginary number?" << endl;
 
@@ -157,7 +157,7 @@ string DeclaredFunctions::GenerateLoadLibraryCall_x64(string p_sDLLName)
 		sContent += Utils::CharToHexString(p_sDLLName[Len - 3]);
 		sContent += "\r\n";
 		sContent += "push rax\r\n";
-		sContent += "sub dword ptr [rsp + 7], 0x23\r\n";
+		sContent += "sub dword [rsp + 7], 0x23\r\n";
 	}
 	else if (Len % 8 == 4)
 	{
@@ -303,7 +303,7 @@ string DeclaredFunctions::GenerateGetProcAddressCall_x86(string p_sDLLName, stri
 		sContent += Utils::CharToHexString(p_sFunctionName[Len - 3]);
 		sContent += "\r\n";
 		sContent += "push eax\r\n";
-		sContent += "sub dword ptr [esp + 3], 0x23\r\n";
+		sContent += "sub dword [esp + 3], 0x23\r\n";
 	}
 	else cout << "Imaginary number?" << endl;
 
@@ -323,7 +323,7 @@ string DeclaredFunctions::GenerateGetProcAddressCall_x86(string p_sDLLName, stri
 	// DLL base address
 
 	sContent += "push esp                               ; String on the stack            \r\n";
-	sContent += "push dword ptr [esp + ";
+	sContent += "push dword [esp + ";
 	sContent += to_string((NrFunctionsToStack * 4) + ((NrBasesToStack + 3 - DLLBaseAddress::GetDLLBase(p_sDLLName)) * 4) + ((Times + 2) * 4));
 	sContent += "] \r\n";
 

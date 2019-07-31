@@ -51,15 +51,12 @@ This is an Alpha version. Please report any bugs or suggestions.
 1. Initial support for Windows x64
 2. Initial support for Linux (x86 and x64) shellcodes
 
-# Keystone compilation
+# Keystone
 
 1. Download Keystone Engine source code
-2. Download, install and put in PATH cmake and python
-3. Open Visual Studio 2019 - x86 (for 32 bits) and x64 (for 64 bits) "Native Tools Command Prompts" and go to Keystone source directory
-4. Edit nmake-lib.bat file and replace -DLLVM_TARGETS_TO_BUILD="all" with -DLLVM_TARGETS_TO_BUILD="X86"
-5. Run mkdir build and cd build commands
-6. Run ..\nmake-lib.bat command
-7. Copy the resulted lib file from keystone-src\build\llvm\lib\keystone.lib to ShellcodeCompiler\Keystone\keystone_x86.lib (for 32 bits) and keystone_x64.lib (for 64 bits)
+2. Compile Keystone Engine as static library using nmake-lib.sh (for Linux) and nmake-lib.bat (for Windows)
+3. Windows: Copy the resulted lib file from keystone-src\build\llvm\lib\keystone.lib to ShellcodeCompiler\Keystone\keystone_x86.lib (for 32 bits) and keystone_x64.lib (for 64 bits)
+4. Linux: Copy the resulted lib file from keystone-src\build\llvm\lib\keystone.lib to ShellcodeCompiler\Keystone\libkeystone_x86.a (for 32 bits) and libkeystone_x64.a (for 64 bits)
 
 # Author
 
